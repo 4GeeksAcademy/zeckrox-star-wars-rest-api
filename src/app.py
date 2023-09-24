@@ -37,6 +37,92 @@ def handle_invalid_usage(error):
 def hello():
     return "Hello World!"  # Aquí flask devolverá "Hello World, esto podría ser un string HTML o un string JSON.
 
+#PEOPLE
+
+@app.route("/people", methods=["GET"])
+def get_people():
+    all_people = People.query.all()
+    return [character.serialize() for character in all_people]
+
+
+@app.route("/people/<int:people_id>", methods=["GET"])
+def get_people_id(people_id):
+    try:
+        selected_people = People.query.get(people_id) or None
+        if selected_people == None:
+            return {"message": f"Character with id {people_id} does not exist"}, 400
+        else:
+            return selected_people.serialize()
+        
+    except ValueError as err:
+        return {"message": "failed to retrieve people " + err}, 500
+    
+@app.route("/people", methods=["POST"])
+def post_people():
+    body = request.get_json()
+
+    name = body.get("name", None)
+    gender = body.get ("gender", None)
+    birth_year = body.get ("birth_year", None)
+    hair_color = body.get ("hair_color", None)
+    skin_color = body.get ("skin_color", None)
+    eye_color = body.get ("eye_color", None)
+    height = body.get ("height", None)
+    mass = body.get ("mass", None)
+    
+    people_info = (name, gender, birth_year, hair_color, skin_color, eye_color, height, mass)
+    for key in people_info:
+        if key == None: return {"message": "Some field is missing in request body"}, 400
+    
+    new_people = People( name=name, gender=gender, birth_year=birth_year, hair_color=hair_color, skin_color=skin_color, eye_color=eye_color, height=height, mass=mass )
+    db.session.add(new_people)
+    db.session.commit()
+    return new_people.serialize(), 200
+
+
+#PLANETS
+
+@app.route("/planets", methods=["GET"])
+def get_planets():
+    all_planets = Planet.query.all()
+    return [planet.serialize() for planet in all_planets]
+
+
+@app.route("/planets/<int:planet_id>", methods=["GET"])
+def get_planet_id(planet_id):
+    try:
+        selected_planet = Planet.query.get(planet_id) or None
+        if selected_planet == None:
+            return {"message": f"Planet with id {planet_id} does not exist"}, 400
+        else:
+            return selected_planet.serialize()
+        
+    except ValueError as err:
+        return {"message": "failed to retrieve planet " + err}, 500
+
+@app.route("/planets", methods=["POST"])
+def post_planet():
+    body = request.get_json()
+    {}
+    name = body.get("name", None)
+    terrain = body.get ("terrain", None)
+    climate = body.get ("climate", None)
+    population = body.get ("population", None)
+    gravity = body.get ("gravity", None)
+    diameter = body.get ("diameter", None)
+
+    planet_info = (name, terrain, climate, population, gravity, diameter)
+    for key in planet_info:
+        if key == None: return {"message": "Some field is missing in request body"}, 400
+    
+    new_planet = Planet( name=name, terrain=terrain, climate=climate, population=population, gravity=gravity, diameter=diameter )
+    db.session.add(new_planet)
+    db.session.commit()
+    return new_planet.serialize(), 200
+
+
+#USERS
+
 @app.route("/users", methods=["POST"])
 def post_message():
     body = request.get_json()
@@ -50,22 +136,25 @@ def post_message():
     db.session.commit()
     return new_user.serialize(), 200
 
+
 @app.route("/users", methods=["GET"])
 def get_users():
     all_users = User.query.all()
     return [user.serialize() for user in all_users]
+
 
 @app.route("/users/<int:user_id>", methods=["GET"])
 def get_user_id(user_id):
     try:
         selected_user = User.query.get(user_id) or None
         if selected_user == None:
-            return "jaja error"
+            return {"message": f"User with id {user_id} does not exist"}
         else:
             return selected_user.serialize()
     
     except ValueError as err:
         return {"message": "failed to retrieve user " + err}, 500
+
 
 @app.route("/users/<int:user_id>/favorites", methods=["GET"])
 def get_favorites(user_id):

@@ -36,6 +36,7 @@ class People(db.Model):
 
     def serialize(self):
         return {
+            "id": self.id,
             "name": self.name,
             "gender": self.gender,
             "birth_year": self.birth_year,
@@ -60,6 +61,7 @@ class Planet(db.Model):
 
     def serialize(self):
         return {
+            "id": self.id,
             "name": self.name,
             "terrain": self.terrain,
             "climate": self.climate,
